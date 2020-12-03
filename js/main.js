@@ -3,11 +3,7 @@ const CANVAS_BACKGROUND_COLOUR = "white";
 const SNAKE_COLOUR = 'firebrick';
 const SNAKE_BORDER_COLOUR = 'black'
 
-let game;
-let food;
-let snake;
-
-
+let game, food, snake;
 
 class Snake {
     constructor(len, step) {
@@ -20,7 +16,13 @@ class Snake {
     set head(coord) {
         this._head = { x: this._head.x + coord.x, y: this._head.y + coord.y };
     }
-
+    /**
+     * 
+     * @param {number} len
+     * @param {number} step
+     * @returns {{x:number,y:number}[]} 
+     * 
+    */
     generateBody(len = 4, step = 16) {
         let array = [];
         for (let i = 0; i < len; i++) {
@@ -28,34 +30,27 @@ class Snake {
         }
         return array;
     }
-
-    // advance(coord) {
-    //     let newHead = { x: this._head.x + coord.x, y: this._head.y + coord.y }
-    //     this._body.unshift(newHead)
-    // }
-
     drawSnake(ctx) {
         game = setInterval(() => {
-
             let oldHead = this.body[0];
-
             this.add(myGame.dir);
             ctx.fillStyle = "blue";
             ctx.fillRect(this.head.x, this.head.y, this.step, this.step);
             ctx.strokestyle = CANVAS_BORDER_COLOUR;
+            //TODO: Evalute the condition to game over.
             if (this.body.slice(4).some((coor) => coor.y == oldHead.y) && this.body.slice(4).some((coor) => coor.x == oldHead.x)) {
                 console.log("game Over!")
                 clearInterval(game);
-            };
+            }
             if (food.posi.foodPosX === oldHead.x && food.posi.foodPosY === oldHead.y) this.eat();
             ctx.clearRect(this.tail.x, this.tail.y, this.step, this.step);
 
-            for (let segment of this.body.slice(1)) {
+            for (let segment of this.body.slice(1)) {//<--- re-paint the  snake every interval
                 ctx.fillStyle = SNAKE_COLOUR;
                 ctx.fillRect(segment.x, segment.y, this.step, this.step);
                 ctx.strokestyle = CANVAS_BORDER_COLOUR;
             }
-        }, 50)
+        }, this._step)
 
     }
     size() {
@@ -85,9 +80,6 @@ class Snake {
         this.body.push({ x: this._tail.x + this.step, y: this._tail.y + this.step })
     }
 }
-
-
-
 
 class Food {
     constructor(dimensions, ctx, step) {
@@ -130,32 +122,28 @@ class Food {
             this.ctx.clearRect(this.posi.foodPosX, this.posi.foodPosY, this.step, this.step);
         }, this._duration + 2000)
     }
-
+    /**
+     * @param {number} interval
+     * 
+    */
     generateFood(interval) {
         setInterval(() => {
             this.drawFood();
         }, this._duration)
 
     }
-
-
-
 }
-
-
 class Game {
     constructor(dimensiones) {
-        this._step = 16;
-        this._score = 10;
-        this._speed = 50
+        this._step = 16;//
+        this._score = 10;//<-- rate of score after eat.
+        this._speed = 50 //
         this._limit = dimensiones;
         this._duration = 5000;
         this.document = document.getElementById("g");
         this.ctx = this.document.getContext("2d");
         this._dir = { x: 0, y: this._step };
-
     }
-
     get dimension() {
         return this._limit;
     }
@@ -191,35 +179,32 @@ class Game {
     createEnviron() {
         this.document.width = this.dimension.x;
         this.document.height = this.dimension.y;
-        //  Select the colour to fill the canvas
-        this.ctx.fillStyle = CANVAS_BACKGROUND_COLOUR;
-        //  Select the colour for the border of the canvas
-        this.ctx.strokestyle = CANVAS_BORDER_COLOUR;
-        //draw the counter;
-
-        // Draw a "filled" rectangle to cover the entire canvas
-        this.ctx.fillRect(0, 0, this.document.width, this.document.height);
-        // Draw a "border" around the entire canvas
-        this.ctx.strokeRect(0, 0, this.document.width, this.document.height);
+        this.ctx.fillStyle = CANVAS_BACKGROUND_COLOUR;//<---  Select the colour to fill the canvas
+        this.ctx.strokestyle = CANVAS_BORDER_COLOUR;//<---  Select the colour for the border of the canvas
+        this.ctx.fillRect(0, 0, this.document.width, this.document.height);//<--- Draw a "filled" rectangle to cover the entire canvas
+        this.ctx.strokeRect(0, 0, this.document.width, this.document.height);//<--- Draw a "border" around the entire canvas
     }
     play() {
-        this.ctx.fillStyle =CANVAS_BORDER_COLOUR
+        this.ctx.fillStyle = CANVAS_BORDER_COLOUR
         this.ctx.fillText(this._score, this.dimension.x * 0.8, 20, 20);
         this.createEnviron();
-        snake = new Snake(10, this.step);
-        food = new Food(this.dimension, this.ctx, this.step);
-        food.generateFood(6000)
+        snake = new Snake(10, this.step);//<--- Boostrap the snake object.
+        food = new Food(this.dimension, this.ctx, this.step);//<---- All snake needs to eat.
+        food.generateFood(6000)//<--- Frequency of the feed.
         snake.drawSnake(this.ctx, this.dir);
     }
 }
 
-const myGame = new Game({ x: 800, y: 800 });
-myGame.play();
 
+const myGame = new Game({ x: 800, y: 800 });//<--- Boostrap the game.
+myGame.play();//<--- Dale play!!
 
 document.addEventListener('keydown', function (event) {
-    let key = event.keyCode;
-    let coord;
+    /**
+     * TODO:Replace keyCode.
+     * !keyCode is deprecated!
+    */
+    let key = event.keyCode,coord;
     switch (key) {
         case 37:
             d = "LEFT";
@@ -245,7 +230,6 @@ document.addEventListener('keydown', function (event) {
             d = "RIGHT";
             return;
     }
-
 });
 
 
